@@ -14,19 +14,18 @@ namespace RabbitMQ.Publisher
 			using var connection = factory.CreateConnection();
 
 			var channel = connection.CreateModel();
-			string queueName = "hello-queue";
 
-			//durable kuyrugun kalıcı olup olmadıgını belirler true olursa kuyruk kalıcı,
-			//exclusive kuyrugun sadece o connection tarafından kullanılabilir oldugunu belirtir false yaparak RabbitMQ.Subscriber tarafında kullanacagiz
-			//autoDelete kuyrugun otomatik olarak silinip silinmeyecegini belirtir false yaparak kuyruklar consumerlara (subscriber) ulassa bile silinmez 
-			//cunku bazen mesaj dogru islenmeeyebilir o yuzden mesaj hemen silinmesin, ozetle daha dayanıklı bir yapı icin true, false, false seklinde yazılır
-			channel.QueueDeclare(queue: queueName, durable: true, exclusive: false, autoDelete: false);
+			channel.ExchangeDeclare("logs-fanout", durable: true, type: ExchangeType.Fanout);
+			#region Fanout Exchange
+			//fanout exchange'deki senaryo için her consumer kendi queue'lerini olusturur, consumerlar down oldugu zaman queueleri de silinir.
+			//eger hic consumer yoksa queue'de olmaz ve yayinlanan mesajlar bosa gider; ki zaten talep eden olmadigi icin sorun yok
+			#endregion
 
 			Enumerable.Range(1, 50).ToList().ForEach(x =>
 			{
-				string message = $"message {x}";
+				string message = $"log {x}";
 				var messageBody = Encoding.UTF8.GetBytes(message);
-				channel.BasicPublish(string.Empty, queueName, null, messageBody);
+				channel.BasicPublish("logs-fanout", string.Empty, null, messageBody);
 				Console.WriteLine($"message has been sent: {message}");
 			});
 

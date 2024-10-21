@@ -15,26 +15,31 @@ namespace RabbitMQ.Subscriber
 			using var connection = factory.CreateConnection();
 
 			var channel = connection.CreateModel();
-			string queueName = "hello-queue";
 
-			//bu satiri publisher'da yazdigimiz icin burada tekrar tanimlamamiza gerek yok, eger orada tanimlamasaydik queue yoksa burada da olusturabilirdi.
-			//channel.QueueDeclare(queueName, true, false, false);
+			//channel.ExchangeDeclare("logs-fanout", durable: true, type: ExchangeType.Fanout);
+
+			//alttaki satir olursa consumer queuesi silinmez mesela loglar dbye kaydedilecektir o zaman queue silinmesin..
+			//channel.QueueDeclare(randomQueueName, true, false, false);
+
+			var randomQueueName = channel.QueueDeclare().QueueName;
+			channel.QueueBind(randomQueueName, "logs-fanout", "", null);
 
 			//0: her turlu boyutta mesaj gonderebilirsin demek,
 			//1 ve false diyerekte kaç tane subscriber varsa yani o mesajı alacak kaç tane tuketici varsa, sırasıyla 1'er 1'er gonderir
-
 			channel.BasicQos(0, 1, false);
 
-			//consumer = subscriber 
-			var consumer = new EventingBasicConsumer(channel);
+			 
+			var consumer = new EventingBasicConsumer(channel); //consumer = subscriber
 
-			channel.BasicConsume(queueName, false, consumer);//teslim edilen mesajlar silinmesin false olsun asagida event icerisinde biz sileriz basicAck()..
+			channel.BasicConsume(randomQueueName, false, consumer);//teslim edilen mesajlar silinmesin false olsun asagida event icerisinde biz sileriz basicAck()..
+
+			Console.WriteLine("loglar dinleniyor");
 
 			consumer.Received += (object? sender, BasicDeliverEventArgs e) =>
 			{
 				var message = Encoding.UTF8.GetString(e.Body.ToArray());
-				Thread.Sleep(1500); //cmdden 2 adet subscriber calistirirsak mesela mesajların sırasıyla subscriberlara gidecegini goruruz.
-				//cd E:\Udemy_Projects\RabbitMQ\RabbitMQ.Subscriber dotnet run
+				Thread.Sleep(500); //cmdden 2 adet subscriber calistirirsak mesela mesajların sırasıyla subscriberlara gidecegini goruruz.
+								   //cd E:\Udemy_Projects\RabbitMQ\RabbitMQ.Subscriber dotnet run
 				Console.WriteLine("Gelen mesaj: " + message);
 				channel.BasicAck(e.DeliveryTag, false);
 			};
