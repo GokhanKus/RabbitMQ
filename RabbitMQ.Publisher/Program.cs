@@ -20,13 +20,16 @@ namespace RabbitMQ.Publisher
 			//exclusive kuyrugun sadece o connection tarafından kullanılabilir oldugunu belirtir false yaparak RabbitMQ.Subscriber tarafında kullanacagiz
 			//autoDelete kuyrugun otomatik olarak silinip silinmeyecegini belirtir false yaparak kuyruklar consumerlara (subscriber) ulassa bile silinmez 
 			//cunku bazen mesaj dogru islenmeeyebilir o yuzden mesaj hemen silinmesin, ozetle daha dayanıklı bir yapı icin true, false, false seklinde yazılır
-			channel.QueueDeclare(queue:queueName, durable: true, exclusive: false, autoDelete: false);
+			channel.QueueDeclare(queue: queueName, durable: true, exclusive: false, autoDelete: false);
 
-			string message = "first rabbitmq message";
-			var messageBody = Encoding.UTF8.GetBytes(message);
-			channel.BasicPublish(string.Empty, queueName, null, messageBody);
+			Enumerable.Range(1, 50).ToList().ForEach(x =>
+			{
+				string message = $"message {x}";
+				var messageBody = Encoding.UTF8.GetBytes(message);
+				channel.BasicPublish(string.Empty, queueName, null, messageBody);
+				Console.WriteLine($"message has been sent: {message}");
+			});
 
-			Console.WriteLine("message has been sent");
 			Console.ReadLine();
 		}
 	}
