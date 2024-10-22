@@ -16,33 +16,30 @@ namespace RabbitMQ.Subscriber
 
 			var channel = connection.CreateModel();
 
-			//channel.ExchangeDeclare("logs-fanout", durable: true, type: ExchangeType.Fanout);
 
-			//alttaki satir olursa consumer queuesi silinmez mesela loglar dbye kaydedilecektir o zaman queue silinmesin..
-			//channel.QueueDeclare(randomQueueName, true, false, false);
 
-			var randomQueueName = channel.QueueDeclare().QueueName;
-			channel.QueueBind(randomQueueName, "logs-fanout", "", null);
-
-			//0: her turlu boyutta mesaj gonderebilirsin demek,
-			//1 ve false diyerekte kaç tane subscriber varsa yani o mesajı alacak kaç tane tuketici varsa, sırasıyla 1'er 1'er gonderir
 			channel.BasicQos(0, 1, false);
 
-			 
+
 			var consumer = new EventingBasicConsumer(channel); //consumer = subscriber
 
-			channel.BasicConsume(randomQueueName, false, consumer);//teslim edilen mesajlar silinmesin false olsun asagida event icerisinde biz sileriz basicAck()..
+			var queueName = "direct queue - Error"; //Error, Info, Warning, artik hangisini dinlemek istiyorsak onu kuyruga aktarip mesajlari gorebiliriz
+
 
 			Console.WriteLine("loglar dinleniyor");
 
 			consumer.Received += (object? sender, BasicDeliverEventArgs e) =>
 			{
 				var message = Encoding.UTF8.GetString(e.Body.ToArray());
-				Thread.Sleep(500); //cmdden 2 adet subscriber calistirirsak mesela mesajların sırasıyla subscriberlara gidecegini goruruz.
-								   //cd E:\Udemy_Projects\RabbitMQ\RabbitMQ.Subscriber dotnet run
+				Thread.Sleep(1000); //cmdden 2 adet subscriber calistirirsak mesela mesajların sırasıyla subscriberlara gidecegini goruruz.
+									//cd E:\Udemy_Projects\RabbitMQ\RabbitMQ.Subscriber dotnet run
 				Console.WriteLine("Gelen mesaj: " + message);
+				//File.AppendAllText("log-critical.txt", message + "\n"); //critical seviyesindeki logları txt dosyasina yazdiralim
 				channel.BasicAck(e.DeliveryTag, false);
 			};
+
+			channel.BasicConsume(queueName, false, consumer);//teslim edilen mesajlar silinmesin false olsun asagida event icerisinde biz sileriz basicAck()..
+
 			Console.ReadLine();
 		}
 	}
