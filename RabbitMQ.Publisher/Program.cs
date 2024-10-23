@@ -31,6 +31,7 @@ namespace RabbitMQ.Publisher
 
 			var properties = channel.CreateBasicProperties();
 			properties.Headers = headers;
+			properties.Persistent = true; //queueleri durable true yaparak kalıcı hale getirebildigimiz gibi mesajları da bu sekilde kalıcı hale getirebiliriyoruz
 
 			var messageBody = Encoding.UTF8.GetBytes("header mesajim");
 			channel.BasicPublish("header-exchange", string.Empty, properties, messageBody);
