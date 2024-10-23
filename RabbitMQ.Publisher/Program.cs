@@ -15,31 +15,29 @@ namespace RabbitMQ.Publisher
 
 			var channel = connection.CreateModel();
 
-			#region Direct Exchange
-			//Direct exchange'deki senaryo için örnegin critical, error, warning, info seklinde routelerimiz olabilir bunlar queue'den consumerlere aktarilir
-			//ilgili seviyelerdeki mesajlar kuyrukta bekler ve mesela critical route db'ye error route dosya olarak kaydedilebilir
-			//fanout exchange'den farklı olarak bunda route key vardır. ve queueler publisher tarafından olusturulur?
+			#region Topic Exchange
+			// detaylı routelama yapilacagi zaman kullanilir, routing key "." larla belirtilir; örneğin routing key Critical.Error.Warning olsun 
+			//burada queueleri consumer olusturur, cunku varyasyon cok fazla olabilir yani routing key'de 3 oge yerine daha fazla, daha az veya sırasi farklı olabilir
+			//consumerlar(subscriber) istedigi routekey'i belirterek ilgili mesaji alabilir mesela
+			// routing keyi = *.Error* olarak belirtirse ortası Error olsun digerleri ne olursa olsun
+			// routing keyi = #.Error olursa da sonu Errorla bitenler gelsin demek..
 			#endregion
 
-			channel.ExchangeDeclare("logs-direct", durable: true, type: ExchangeType.Direct);
+			channel.ExchangeDeclare("logs-topic", durable: true, type: ExchangeType.Topic);
 
-			Enum.GetNames(typeof(LogNames)).ToList().ForEach(x =>
-			{
-				var routeKey = $"route - {x}";
-				var queueName = $"direct queue - {x}";
-
-				channel.QueueDeclare(queueName, true, false, false);
-				channel.QueueBind(queueName, "logs-direct", routeKey, null);
-			});
+			Random rnd = new Random();
 
 			Enumerable.Range(1, 50).ToList().ForEach(x =>
 			{
-				var log = (LogNames)new Random().Next(1, 5);
-				string message = $"log-type: {log}";
-				var messageBody = Encoding.UTF8.GetBytes(message);
-				var routeKey = $"route - {log}";
+				var log1 = (LogNames)rnd.Next(1, 5);
+				var log2 = (LogNames)rnd.Next(1, 5);
+				var log3 = (LogNames)rnd.Next(1, 5);
 
-				channel.BasicPublish("logs-direct", routeKey, null, messageBody);
+				var routeKey = $"{log1}.{log2}.{log3}";
+				string message = $"log-type: {log1}-{log2}-{log3}";
+				var messageBody = Encoding.UTF8.GetBytes(message);
+
+				channel.BasicPublish("logs-topic", routeKey, null, messageBody);
 				Console.WriteLine($"log gonderilmistir: {message}");
 			});
 

@@ -16,16 +16,17 @@ namespace RabbitMQ.Subscriber
 
 			var channel = connection.CreateModel();
 
-
-
 			channel.BasicQos(0, 1, false);
-
 
 			var consumer = new EventingBasicConsumer(channel); //consumer = subscriber
 
-			var queueName = "direct queue - Error"; //Error, Info, Warning, artik hangisini dinlemek istiyorsak onu kuyruga aktarip mesajlari gorebiliriz
+			var queueName = channel.QueueDeclare().QueueName; //Error, Info, Warning, artik hangisini dinlemek istiyorsak onu kuyruga aktarip mesajlari gorebiliriz
+			var routeKey = $"#.Error";
+			// *.Error.* ortası error olan mesajları dinler, #.Error sonu Error olanları dinler Error.# basi error olanlari dinler
+			// error yerine, warning, info, critical vs.' de yazilabilir.
+			channel.QueueBind(queueName, "logs-topic", routeKey);
 
-
+			channel.BasicConsume(queueName, false, consumer);//teslim edilen mesajlar silinmesin false olsun asagida event icerisinde biz sileriz basicAck()..
 			Console.WriteLine("loglar dinleniyor");
 
 			consumer.Received += (object? sender, BasicDeliverEventArgs e) =>
@@ -38,7 +39,6 @@ namespace RabbitMQ.Subscriber
 				channel.BasicAck(e.DeliveryTag, false);
 			};
 
-			channel.BasicConsume(queueName, false, consumer);//teslim edilen mesajlar silinmesin false olsun asagida event icerisinde biz sileriz basicAck()..
 
 			Console.ReadLine();
 		}
