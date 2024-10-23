@@ -1,6 +1,8 @@
 ﻿using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using Shared;
 using System.Text;
+using System.Text.Json;
 
 namespace RabbitMQ.Subscriber
 {
@@ -38,8 +40,10 @@ namespace RabbitMQ.Subscriber
 			consumer.Received += (object? sender, BasicDeliverEventArgs e) =>
 			{
 				var message = Encoding.UTF8.GetString(e.Body.ToArray());
-				Thread.Sleep(1000); 
-				Console.WriteLine("Gelen mesaj: " + message);
+				//producer tarafinda bir class instance'ını serilize edip byte dizisine cevirdik ve yayinladik. Burada da deserilize ederek mesaji okuyoruz
+				var p = JsonSerializer.Deserialize<Product>(message);
+				Thread.Sleep(1000);
+				Console.WriteLine($"class instance'ı gelen mesaj: \nId:{p.Id} \nStock:{p.Stock} \nName:{p.Name} \nPrice:{p.Price}");
 				channel.BasicAck(e.DeliveryTag, false);
 			};
 

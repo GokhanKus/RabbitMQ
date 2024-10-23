@@ -1,5 +1,7 @@
 ﻿using RabbitMQ.Client;
+using Shared;
 using System.Text;
+using System.Text.Json;
 
 namespace RabbitMQ.Publisher
 {
@@ -33,11 +35,14 @@ namespace RabbitMQ.Publisher
 			properties.Headers = headers;
 			properties.Persistent = true; //queueleri durable true yaparak kalıcı hale getirebildigimiz gibi mesajları da bu sekilde kalıcı hale getirebiliriyoruz
 
-			var messageBody = Encoding.UTF8.GetBytes("header mesajim");
-			channel.BasicPublish("header-exchange", string.Empty, properties, messageBody);
+			//bu zamana kadar mesajlari string tipinde gonderdik ama pdf, img, ya da bir class instance'ı da gonderebiliriz(complex type'lari mesaj olarak gondermek)
+			//var product2 = new Product { Id = 1, Stock = 50 , Name = "Silgi", Price = 25 };
+			var product = new Product(1, 150, "Kalem", 10);
+			var objectToSerialized = JsonSerializer.Serialize(product);
+			channel.BasicPublish("header-exchange", string.Empty, properties, Encoding.UTF8.GetBytes(objectToSerialized));
 
-            Console.WriteLine("mesaj gonderilmistir");
-            Console.ReadLine();
+			Console.WriteLine("mesaj gonderilmistir");
+			Console.ReadLine();
 		}
 	}
 }
