@@ -15,33 +15,28 @@ namespace RabbitMQ.Publisher
 
 			var channel = connection.CreateModel();
 
-			#region Topic Exchange
-			// detaylı routelama yapilacagi zaman kullanilir, routing key "." larla belirtilir; örneğin routing key Critical.Error.Warning olsun 
-			//burada queueleri consumer olusturur, cunku varyasyon cok fazla olabilir yani routing key'de 3 oge yerine daha fazla, daha az veya sırasi farklı olabilir
-			//consumerlar(subscriber) istedigi routekey'i belirterek ilgili mesaji alabilir mesela
-			// routing keyi = *.Error* olarak belirtirse ortası Error olsun digerleri ne olursa olsun
-			// routing keyi = #.Error olursa da sonu Errorla bitenler gelsin demek..
+			#region Header Exchange
+			// header exchange'de key value seklinde olur header'da mesela format=pdf, shape=a4 olsun
+			// mesajı talep ederken consumer tarafında header=> format=pdf ve shape=a4 diyerek ilgili mesajları alırız
+			// ek olarak x-match = any derken formatı pdf olan veya shape'i a4 olanlar gelir
+			// ama x-match = all dersek hem pdf hem de a4 olacak anlamina gelir
+
 			#endregion
 
-			channel.ExchangeDeclare("logs-topic", durable: true, type: ExchangeType.Topic);
+			channel.ExchangeDeclare("header-exchange", durable: true, type: ExchangeType.Headers);
 
-			Random rnd = new Random();
+			Dictionary<string, object> headers = new Dictionary<string, object>();
+			headers.Add("format", "pdf");
+			headers.Add("shape", "a4");
 
-			Enumerable.Range(1, 50).ToList().ForEach(x =>
-			{
-				var log1 = (LogNames)rnd.Next(1, 5);
-				var log2 = (LogNames)rnd.Next(1, 5);
-				var log3 = (LogNames)rnd.Next(1, 5);
+			var properties = channel.CreateBasicProperties();
+			properties.Headers = headers;
 
-				var routeKey = $"{log1}.{log2}.{log3}";
-				string message = $"log-type: {log1}-{log2}-{log3}";
-				var messageBody = Encoding.UTF8.GetBytes(message);
+			var messageBody = Encoding.UTF8.GetBytes("header mesajim");
+			channel.BasicPublish("header-exchange", string.Empty, properties, messageBody);
 
-				channel.BasicPublish("logs-topic", routeKey, null, messageBody);
-				Console.WriteLine($"log gonderilmistir: {message}");
-			});
-
-			Console.ReadLine();
+            Console.WriteLine("mesaj gonderilmistir");
+            Console.ReadLine();
 		}
 	}
 }

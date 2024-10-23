@@ -16,15 +16,21 @@ namespace RabbitMQ.Subscriber
 
 			var channel = connection.CreateModel();
 
+			channel.ExchangeDeclare("header-exchange", durable: true, type: ExchangeType.Headers);
+			//queue ve exchangeleri subscriber(consumer) ya da publisher'da yani tek birinde declare etmemiz yeterli
 			channel.BasicQos(0, 1, false);
 
 			var consumer = new EventingBasicConsumer(channel); //consumer = subscriber
 
 			var queueName = channel.QueueDeclare().QueueName; //Error, Info, Warning, artik hangisini dinlemek istiyorsak onu kuyruga aktarip mesajlari gorebiliriz
-			var routeKey = $"#.Error";
-			// *.Error.* ortası error olan mesajları dinler, #.Error sonu Error olanları dinler Error.# basi error olanlari dinler
-			// error yerine, warning, info, critical vs.' de yazilabilir.
-			channel.QueueBind(queueName, "logs-topic", routeKey);
+
+			Dictionary<string, object> headers = new Dictionary<string, object>();
+
+			headers.Add("format", "pdf");
+			headers.Add("shape", "a4");
+			headers.Add("x-match", "all");
+
+			channel.QueueBind(queueName, "header-exchange", string.Empty, headers);
 
 			channel.BasicConsume(queueName, false, consumer);//teslim edilen mesajlar silinmesin false olsun asagida event icerisinde biz sileriz basicAck()..
 			Console.WriteLine("loglar dinleniyor");
@@ -32,10 +38,8 @@ namespace RabbitMQ.Subscriber
 			consumer.Received += (object? sender, BasicDeliverEventArgs e) =>
 			{
 				var message = Encoding.UTF8.GetString(e.Body.ToArray());
-				Thread.Sleep(1000); //cmdden 2 adet subscriber calistirirsak mesela mesajların sırasıyla subscriberlara gidecegini goruruz.
-									//cd E:\Udemy_Projects\RabbitMQ\RabbitMQ.Subscriber dotnet run
+				Thread.Sleep(1000); 
 				Console.WriteLine("Gelen mesaj: " + message);
-				//File.AppendAllText("log-critical.txt", message + "\n"); //critical seviyesindeki logları txt dosyasina yazdiralim
 				channel.BasicAck(e.DeliveryTag, false);
 			};
 
