@@ -8,6 +8,7 @@ namespace RabbitMQWeb.Watermark.Services
 		private IConnection _connection;
 		private IModel _channel;
 
+		//direct exchange kullanacagiz
 		public static string exchangeName = "ImageDirectExchange";
 		public static string routingWaterMark = "watermark-route-image";
 		public static string queueName = "queue-watermark-image";
@@ -17,7 +18,6 @@ namespace RabbitMQWeb.Watermark.Services
 		{
 			_connectionFactory = connectionFactory;
 			_logger = logger;
-			Connect();
 		}
 		public IModel Connect()
 		{
@@ -44,5 +44,14 @@ namespace RabbitMQWeb.Watermark.Services
 
 			_logger.LogInformation("RabbitMQ ile baglanti koptu");
 		}
+		#region Message&Event
+		//rabbit mq'ya mesaj gonderilirken ya message ya da event tipinde gonderilir
+		//Message: islenmesi icin gerekli datayı tasir ve mesaji gonderen, mesajin nasil islenecegini bilir
+		//ornegin WordToPDF publisher bir word dosyasini byte dizisine cevirip message broker ile pdf'e donusturulecegini bilir sonra subscriber ile infoyu publishera doner
+		//Event: eventler bir notification sistemi saglar ve eventi firlatan, onun nasıl ele alinacagini, islenecegini bilmez
+		//ornegin UserCreatedEvent, OrderCreatedEvent
+		//messagelar genelde islenecek olan datayı barindirirken, eventler genelde user'in id'si olabilir messagelere gore daha az maliyetlidir
+		//bu ornekte event olacak. event firlatacagiz
+		#endregion
 	}
 }

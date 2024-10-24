@@ -12,7 +12,7 @@ namespace RabbitMQWeb.Watermark
 			var builder = WebApplication.CreateBuilder(args);
 
 			// Add services to the container.
-			
+
 			builder.Services.AddDbContext<AppDbContext>(options =>
 			{
 				options.UseInMemoryDatabase(databaseName: "productDb");
@@ -21,8 +21,9 @@ namespace RabbitMQWeb.Watermark
 
 			var amqpUrl = builder.Configuration.GetConnectionString("RabbitMQ");
 
-			builder.Services.AddSingleton(sp => new ConnectionFactory{ Uri = new Uri(amqpUrl) });
+			builder.Services.AddSingleton(sp => new ConnectionFactory { Uri = new Uri(amqpUrl) });
 			builder.Services.AddSingleton<RabbitMQClientService>();
+			builder.Services.AddSingleton<RabbitMQPublisher>();
 
 			var app = builder.Build();
 
