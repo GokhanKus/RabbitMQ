@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RabbitMQ.Client;
+using RabbitMQWeb.Watermark.BackgroundServices;
 using RabbitMQWeb.Watermark.Models;
 using RabbitMQWeb.Watermark.Services;
 
@@ -21,9 +22,10 @@ namespace RabbitMQWeb.Watermark
 
 			var amqpUrl = builder.Configuration.GetConnectionString("RabbitMQ");
 
-			builder.Services.AddSingleton(sp => new ConnectionFactory { Uri = new Uri(amqpUrl) });
+			builder.Services.AddSingleton(sp => new ConnectionFactory { Uri = new Uri(amqpUrl), DispatchConsumersAsync = true });
 			builder.Services.AddSingleton<RabbitMQClientService>();
 			builder.Services.AddSingleton<RabbitMQPublisher>();
+			builder.Services.AddHostedService<ImageWatermarkProcessBackGroundService>();
 
 			var app = builder.Build();
 
