@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RabbitMQ.Subscriber", "Rabb
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared", "Shared\Shared.csproj", "{4D17B939-B092-4B71-9E8B-EFB1B110FCDA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RabbitMQWeb.Watermark", "RabbitMQWeb.Watermark\RabbitMQWeb.Watermark.csproj", "{0B788DA4-3820-4EF1-B151-72C6F0F0B43A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RabbitMQWeb.Watermark", "RabbitMQWeb.Watermark\RabbitMQWeb.Watermark.csproj", "{0B788DA4-3820-4EF1-B151-72C6F0F0B43A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RabbitMQWeb.Excel", "RabbitMQWeb.Excel\RabbitMQWeb.Excel.csproj", "{9A1FF300-C65C-4132-91B4-A95DF38CE9D6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{0B788DA4-3820-4EF1-B151-72C6F0F0B43A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B788DA4-3820-4EF1-B151-72C6F0F0B43A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B788DA4-3820-4EF1-B151-72C6F0F0B43A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A1FF300-C65C-4132-91B4-A95DF38CE9D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A1FF300-C65C-4132-91B4-A95DF38CE9D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A1FF300-C65C-4132-91B4-A95DF38CE9D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A1FF300-C65C-4132-91B4-A95DF38CE9D6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
