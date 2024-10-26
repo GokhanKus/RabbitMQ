@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using RabbitMQ.Client;
 using RabbitMQWeb.Excel.Extensions;
 using RabbitMQWeb.Excel.Models;
+using RabbitMQWeb.Excel.Services;
 
 namespace RabbitMQWeb.Excel
 {
@@ -14,11 +16,17 @@ namespace RabbitMQWeb.Excel
 			// Add services to the container.
 			builder.Services.AddControllersWithViews();
 
+			
 			builder.Services.AddDbContext<AppDbContext>(options =>
 			{
 				var connectionString = builder.Configuration.GetConnectionString("SqlServer");
 				options.UseSqlServer(connectionString);
 			});
+
+			var amqpUrl = builder.Configuration.GetConnectionString("RabbitMQ");
+
+			builder.Services.AddSingleton(sp => new ConnectionFactory { Uri = new Uri(amqpUrl), DispatchConsumersAsync = true });
+			builder.Services.AddSingleton<RabbitMQClientService>();
 
 			builder.Services.AddIdentity<IdentityUser, IdentityRole>(opt =>
 			{
