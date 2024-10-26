@@ -40,7 +40,7 @@ namespace RabbitMQWeb.Excel.Controllers
 			await _context.UserFiles.AddAsync(userFile);
 			await _context.SaveChangesAsync();
 
-			_rabbitMQPublisher.Publish(new CreateExcelMessage { FileId = userFile.Id, UserId = user.Id });
+			_rabbitMQPublisher.Publish(new CreateExcelMessage { FileId = userFile.Id});
 
 			TempData["StartCreatingExcel"] = true;
 
@@ -49,7 +49,7 @@ namespace RabbitMQWeb.Excel.Controllers
 		public async Task<IActionResult> Files()
 		{
 			var user = await _userManager.FindByNameAsync(User.Identity.Name);
-			var userFiles = await _context.UserFiles.Where(x => x.UserId == user.Id).ToListAsync();
+			var userFiles = await _context.UserFiles.Where(x => x.UserId == user.Id).OrderByDescending(uf=>uf.Id).ToListAsync();
 			return View(userFiles);
 		}
 	}
