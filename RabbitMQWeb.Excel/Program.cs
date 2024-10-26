@@ -16,7 +16,7 @@ namespace RabbitMQWeb.Excel
 			// Add services to the container.
 			builder.Services.AddControllersWithViews();
 
-			
+
 			builder.Services.AddDbContext<AppDbContext>(options =>
 			{
 				var connectionString = builder.Configuration.GetConnectionString("SqlServer");
@@ -27,6 +27,7 @@ namespace RabbitMQWeb.Excel
 
 			builder.Services.AddSingleton(sp => new ConnectionFactory { Uri = new Uri(amqpUrl), DispatchConsumersAsync = true });
 			builder.Services.AddSingleton<RabbitMQClientService>();
+			builder.Services.AddSingleton<RabbitMQPublisher>();
 
 			builder.Services.AddIdentity<IdentityUser, IdentityRole>(opt =>
 			{
