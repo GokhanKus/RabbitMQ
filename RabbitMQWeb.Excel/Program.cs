@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using RabbitMQ.Client;
 using RabbitMQWeb.Excel.Extensions;
+using RabbitMQWeb.Excel.Hubs;
 using RabbitMQWeb.Excel.Models;
 using RabbitMQWeb.Excel.Services;
 
@@ -29,6 +30,8 @@ namespace RabbitMQWeb.Excel
 			builder.Services.AddSingleton<RabbitMQClientService>();
 			builder.Services.AddSingleton<RabbitMQPublisher>();
 
+			builder.Services.AddSignalR();
+
 			builder.Services.AddIdentity<IdentityUser, IdentityRole>(opt =>
 			{
 				opt.User.RequireUniqueEmail = true;
@@ -50,6 +53,7 @@ namespace RabbitMQWeb.Excel
 			app.UseAuthentication();
 			app.UseAuthorization();
 
+			app.MapHub<MyHub>("/MyHub");
 			app.MapControllerRoute(
 				name: "default",
 				pattern: "{controller=Home}/{action=Index}/{id?}");

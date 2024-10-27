@@ -26,4 +26,24 @@
 	}
 </table>
 
+@section Scripts
+{
+	<script>
+		$(document).ready(function () {
+
+			var hasStartCreatingExcel = '@TempData["StartCreatingExcel"]';
+			if(hasStartCreatingExcel)
+			{
+				Swal.fire({
+					position: "center",
+					icon: "success",
+					title: "Excel creating process is started, you'll get a notification when it's done",
+					showConfirmButton: false,
+					timer:2500
+				})
+			}
+		})
+	</script>
+}
+
 
